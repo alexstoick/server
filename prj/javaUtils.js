@@ -54,10 +54,20 @@ function test ( )
     }
 }
 
+var players = [ "alexstoick" , "vladstoick" ] ;
+var colors = [ "#ABCF00" , "#FAA000" ] ;
+
+
 function updateMap ( id , player )
 {
     log ( "received update >>> zone:" + id + " by player:" + player ) ;
-    paper.getById ( id ).attr ( {fill:'#FF0000'} ) ;
+    var fillColor = "#000000" ;
+    var i ;
+    for ( i = 0 ; i < 2 ; ++ i )
+        if ( player == players[i] )
+            fillColor = colors[i] ;
+
+    paper.getById ( id ).attr ( {fill:fillColor} ) ;
 }
 
 function sendMapUpdate ( id )
