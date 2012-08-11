@@ -5,13 +5,13 @@ var url = require ('url');
 
 app.listen(process.env.PORT || 8001);
 
-function handler (req, res) 
+function handler (req, res)
 {
     var pathname = url.parse(req.url).pathname;
-    
+
     var file = "" ;
     var type="" ;
-    switch ( pathname ) 
+    switch ( pathname )
     {
         case '/': file = 'prj/project.html' ; type = "text/html" ; break ;
         case '/room2.html': file = 'room2.html'; type = "text/html" ; break ;
@@ -22,18 +22,18 @@ function handler (req, res)
         case '/project.css': file = 'prj/project.css'; type ="text/css" ;break ;
         case '/javaUtils.js': file = 'prj/javaUtils.js'; type = "text/javascript" ; break ;
     }
-    
+
     console.log("Request for " + pathname + " received. ===> file:" + file + " type: " + type ) ;
-    
+
     fs.readFile( file ,
-    function (err, data) 
+    function (err, data)
     {
-        if (err) 
+        if (err)
         {
             res.writeHead(500);
             return res.end('Error loading ' + file + "~~" );
         }
-    
+
         res.writeHead(200, {'Content-Type': type, "Content-Length": data.length});
         res.end(data);
     } );
@@ -41,10 +41,10 @@ function handler (req, res)
 }
 
 
-io.sockets.on ( 'connection' , 
+io.sockets.on ( 'connection' ,
     function (socket) {
-        
-        socket.on ( 'joinRoom' , function (data) 
+
+        socket.on ( 'joinRoom' , function (data)
                                     {
                                         socket.leave ( 'no_room' ) ;
                                         socket.set ( 'room' , data ) ;
@@ -56,26 +56,37 @@ io.sockets.on ( 'connection' ,
                                         for ( i = 0 ; i < io.sockets.clients(data).length ; ++ i )
                                             connected += io.sockets.clients(data)[i].id + " ; " ;
                                         socket.send ( connected ) ;
-                                    } 
+                                    }
                     ) ;
-        socket.on ( 'leaveRoom' , function ( ) 
+        socket.on ( 'leaveRoom' , function ( )
                                     {
                                         socket.close();
                                         console.log ( "~~~~~~~~~~~~CLOSED SOCKET" ) ;
                                     }
                     );
         socket.on('disconnect', function() { console.log(socket.id + ' disconnected'); } ) ;
-        
-        
-        socket.on ( 'message' , function ( data ) 
+
+
+        socket.on ( 'message' , function ( data )
                                 {
                                     console.log("Client data: " + data);
-                                    
+
                                     // lookup room and broadcast to that room
-                                    
+
                                     socket.get('room', function(err, room) {
                                         console.log ( "Client room:" + room ) ;
                                         socket.broadcast.to(room).emit( 'message' , data );
                                         }) ;
                                 } );
+
+        socket.on ( 'updateMap' , function ( id , username )
+                                    {
+                                        socket.get ( 'room' , function ( err , room ) {
+                                            console.log ( "UPDATING " + room + " zone " + id + " by user:" + username ) ;
+                                            socket.broadcast.to(room).emit ( 'mapUpdate' , id , username ) ;
+                                            socket.emit ( 'mapUpdate' , id , username ) ;
+                                            //var string = ("id:" + id + " user:" + username) ;
+                                        });
+                                    }
+                    );
     } ) ;

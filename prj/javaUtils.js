@@ -29,11 +29,16 @@ function connect()
     if (socket == null)
     {
         socket = io.connect() ;
-        socket.on('connect', function () { status('Connected'); });
+        socket.on('connect', function () { status('Connected'); test(); });
         socket.on('message', function (data) { log(data); });
         socket.on('mapUpdate' , function (id,player) { updateMap ( id,player) ;})
     }
     socket.socket.connect();
+}
+
+function sendTestMessage ( )
+{
+    socket.send ( 'abc' ) ;
 }
 
 function test ( )
@@ -51,6 +56,7 @@ function test ( )
 
 function updateMap ( id , player )
 {
+    log ( "received update >>> zone:" + id + " by player:" + player ) ;
     paper.getById ( id ).attr ( {fill:'#FF0000'} ) ;
 }
 

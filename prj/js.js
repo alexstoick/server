@@ -1,4 +1,5 @@
 var username;
+var paper;
 
 
 function main() {
@@ -92,7 +93,7 @@ function main() {
             'stroke-width': 3,
             'stroke-linejoin': 'round'
         };
-        var paper = new Raphael(document.getElementById('canvasRaphael'), "100%", "100%");
+        paper = new Raphael(document.getElementById('canvasRaphael'), "100%", "100%");
         paper.rect(0, 0, 960, 500).attr({
             fill: '#221E1D'
         });
