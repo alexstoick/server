@@ -20,19 +20,56 @@ function handler (req, res)
     } );
 }
 
-io.configure(function () { 
-  io.set("transports", ["xhr-polling"]); 
-  io.set("polling duration", 10); 
+
+io.of('/room2').on('connection', function (socket) {
+    // echo the message
+    socket.on ( 'room2' , function (data) {
+                                                console.warn ( "message on room2:" + data ) ;
+                                                io.sockets.emit ( 'room2' , data ) ;
+                                            });
+        
+    
+    socket.on('message', 
+        function (data) { 
+                            console.log ( "room2 data: " + data ) ; 
+                        } 
+            ) ;
 });
 
+io.of('/room1').on('connection', function (socket) {
+    // echo the message
+    socket.on ( 'room1' , function (data) {
+                                                console.warn ( "message on room1:" + data ) ;
+                                                socket.broadcast.emit ( 'room1' , data ) ;
+                                            });
+        
+    
+    socket.on('message', 
+        function (data) { 
+                            console.log ( "room1 data: " + data ) ; 
+                        } 
+            ) ;
+});
+
+
+/*
 io.sockets.on('connection', function (socket) {
     // echo the message
-    socket.on ( 'custom' , function (data) {
-                                                console.warn ( "+++++" + data ) ;
-                                                io.sockets.emit ( 'custom' , data ) ;
+    socket.on ( 'room1' , function (data) {
+                                                console.warn ( "message on room1:" + data ) ;
+                                                io.sockets.emit ( 'room1' , data ) ;
                                             });
-    socket.on('message', function (data) { 
-                                            console.info(data); 
-                                            socket.send("[ECHO] "+data); 
-                                        });
+                                            
+    socket.on ( 'room2' , function (data) {
+                                                console.warn ( "message on room2:" + data ) ;
+                                                io.sockets.emit ( 'room2' , data ) ;
+                                            });
+        
+    
+    socket.on('message', 
+        function (data) { 
+                            console.log ( data ) ; 
+                        } 
+            ) ;
 });
+*/
