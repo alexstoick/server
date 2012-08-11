@@ -34,7 +34,7 @@ function connect()
         socket = io.connect('/room2') ;
         socket.on('connect', function () { status('Connected'); });
         
-        //socket.on('message', function (data) { log(data); });
+        socket.on('message', function (data) { log(data); });
         socket.on('room2', function (data) { log(data); });
     }   
     socket.socket.connect();
