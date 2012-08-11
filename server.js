@@ -20,6 +20,11 @@ function handler (req, res)
     } );
 }
 
+io.configure(function () { 
+  io.set("transports", ["xhr-polling"]); 
+  io.set("polling duration", 10); 
+});
+
 io.sockets.on('connection', function (socket) {
     // echo the message
     socket.on ( 'custom' , function (data) {
