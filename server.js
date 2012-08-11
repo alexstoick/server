@@ -21,13 +21,13 @@ function handler (req, res)
 }
 
 io.sockets.on('connection', function (socket) {
-// echo the message
-socket.on ( 'custom' , function (data) {
-    console.warn ( "+++++" + data ) ;
-    socket.emit ( 'custom' , data ) ;
-});
-socket.on('message', function (data) {
-console.info(data);
-socket.send("[ECHO] "+data);
-});
+    // echo the message
+    socket.on ( 'custom' , function (data) {
+                                                console.warn ( "+++++" + data ) ;
+                                                socket.broadcast ( 'custom' , data ) ;
+                                            });
+    socket.on('message', function (data) { 
+                                            console.info(data); 
+                                            socket.send("[ECHO] "+data); 
+                                        });
 });
