@@ -17,7 +17,8 @@ function handler (req, res)
         case '/room2.html': file = 'room2.html'; type = "text/html" ; break ;
         case '/index.html': file = 'index.html'; type = "text/html" ; break ;
         case '/project' : file = 'prj/project.html'; type = "text/html" ; break ;
-        case '/js.js': file = 'prj/js.js' ; type = "text/javascript" ; break ;
+        case '/uijs.js': file = 'prj/uijs.js' ; type = "text/javascript" ; break ;
+        case '/publicApi.js': file = 'prj/publicApi.js' ; type = "text/javascript" ; break ;
         case '/raphael-min.js': file = 'prj/raphael-min.js' ; type = "text/javascript" ; break ;
         case '/project.css': file = 'prj/project.css'; type ="text/css" ;break ;
         case '/javaUtils.js': file = 'prj/javaUtils.js'; type = "text/javascript" ; break ;
