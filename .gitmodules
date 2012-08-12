@@ -1,0 +1,3 @@
+[submodule "prj"]
+	path = prj
+	url = git@github.com:alexstoick/conquiz.git
