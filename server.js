@@ -45,17 +45,27 @@ function handler (req, res)
 io.sockets.on ( 'connection' ,
     function (socket) {
 
-        socket.on ( 'joinRoom' , function (data)
+        socket.on ( 'joinRoom' , function (room , username )
                                     {
                                         socket.leave ( 'no_room' ) ;
-                                        socket.set ( 'room' , data ) ;
-                                        socket.join ( data ) ;
-                                        console.log ( "now in room: " + data ) ;
-                                        socket.send ( ">>> joined " + data ) ;
+
+                                        socket.set ( 'room' , room ) ;
+                                        socket.set ( 'username' , username ) ;
+
+                                        socket.join ( room ) ;
+                                        console.log ( "now in room: " + room ) ;
+                                        socket.send ( ">>> joined " + room ) ;
+
                                         var connected="~: " ;
                                         var i ;
-                                        for ( i = 0 ; i < io.sockets.clients(data).length ; ++ i )
-                                            connected += io.sockets.clients(data)[i].id + " ; " ;
+
+                                        for ( i = 0 ; i < io.sockets.clients(room).length ; ++ i )
+                                        {
+                                            var currSocket = io.sockets.clients(room)[i];
+                                            currSocket.get ( 'username' , function ( err , user ) {
+                                                    connected += user + " ; " ;
+                                                }) ;
+                                        }
                                         socket.send ( connected ) ;
                                     }
                     ) ;
