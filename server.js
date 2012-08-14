@@ -45,59 +45,97 @@ function handler (req, res)
 io.sockets.on ( 'connection' ,
     function (socket) {
 
-        socket.on ( 'joinRoom' , function (room , username )
-                                    {
-                                        socket.leave ( 'no_room' ) ;
+        socket.on ( 'joinRoom' , function (room , username ) { joinRoom ( socket, room , username ) ; } ) ;
 
-                                        socket.set ( 'room' , room ) ;
-                                        socket.set ( 'username' , username ) ;
+        socket.on('disconnect', function() { disconnected ( socket ) ;  } ) ;
 
-                                        socket.join ( room ) ;
-                                        console.log ( "now in room: " + room ) ;
-                                        socket.send ( ">>> joined " + room ) ;
+        socket.on ( 'message' , function ( data ) { receivedMessage ( socket,  data ) ; } );
 
-                                        var connected="~: " ;
-                                        var i ;
+        socket.on ( 'updateMap' , function ( id , username ) { updateMap ( id , username ) ; } );
 
-                                        for ( i = 0 ; i < io.sockets.clients(room).length ; ++ i )
-                                        {
-                                            var currSocket = io.sockets.clients(room)[i];
-                                            currSocket.get ( 'username' , function ( err , user ) {
-                                                    connected += user + " ; " ;
-                                                }) ;
-                                        }
-                                        socket.send ( connected ) ;
-                                    }
-                    ) ;
-        socket.on ( 'leaveRoom' , function ( )
-                                    {
-                                        socket.close();
-                                        console.log ( "~~~~~~~~~~~~CLOSED SOCKET" ) ;
-                                    }
-                    );
-        socket.on('disconnect', function() { console.log(socket.id + ' disconnected'); } ) ;
-
-
-        socket.on ( 'message' , function ( data )
-                                {
-                                    console.log("Client data: " + data);
-
-                                    // lookup room and broadcast to that room
-
-                                    socket.get('room', function(err, room) {
-                                        console.log ( "Client room:" + room ) ;
-                                        socket.broadcast.to(room).emit( 'message' , data );
-                                        }) ;
-                                } );
-
-        socket.on ( 'updateMap' , function ( id , username )
-                                    {
-                                        socket.get ( 'room' , function ( err , room ) {
-                                            console.log ( "UPDATING " + room + " zone " + id + " by user:" + username ) ;
-                                            socket.broadcast.to(room).emit ( 'mapUpdate' , id , username ) ;
-                                            socket.emit ( 'mapUpdate' , id , username ) ;
-                                            //var string = ("id:" + id + " user:" + username) ;
-                                        });
-                                    }
-                    );
     } ) ;
+
+
+function getProperty ( socket , propertyName )
+{
+    var prop ;
+    socket.get ( propertyName , function ( err , property)
+                                {
+                                    console.log ( propertyName + " :: " + property ) ;
+                                    prop =  property ;
+                                }) ;
+    return prop ;
+}
+
+function joinRoom ( socket , room , username )
+{
+
+    socket.set ( 'room' , room ) ;
+    socket.set ( 'username' , username ) ;
+
+    socket.join ( room ) ;
+    socket.send ( ">>> joined " + room ) ;
+
+    var connectedArray = [] ;
+    var i ;
+
+    for ( i = 0 ; i < io.sockets.clients(room).length ; ++ i )
+    {
+        var currSocket = io.sockets.clients(room)[i];
+        var user = getProperty( currSocket , 'username' ) ;
+        connectedArray.push ( user ) ;
+
+    }
+
+    socket.emit ( 'usersUpdate' , connectedArray ) ;
+    socket.broadcast.to(room).emit ( 'usersUpdate' , connectedArray ) ;
+}
+
+function disconnected ( socket )
+{
+    var user = getProperty( socket , 'username' ) ;
+    var room = getProperty( socket , 'room' ) ;
+
+    console.log ( "Disconnected " + user + " from room:" + room ) ;
+    socket.broadcast.to(room).emit ( 'userDisconnected' , user ) ;
+}
+
+function receivedMessage ( socket , data )
+{
+    console.log("Client data: " + data);
+
+    // lookup room and broadcast to that room
+    var room ;
+    room = getProperty( socket , 'room' ) ;
+    console.log ( "Client room:" + room ) ;
+    socket.broadcast.to(room).emit( 'message' , data );
+}
+
+
+function updateMap ( socket , id , username  )
+{
+    var room ;
+    room = getProperty( socket , 'room' ) ;
+    console.log ( "UPDATING " + room + " zone " + id + " by user:" + username ) ;
+    socket.broadcast.to(room).emit ( 'mapUpdate' , id , username ) ;
+    socket.emit ( 'mapUpdate' , id , username ) ;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
