@@ -47,7 +47,7 @@ io.sockets.on ( 'connection' ,
 
         socket.on ( 'joinRoom' , function (room , username ) { joinRoom ( socket, room , username ) ; } ) ;
 
-        socket.on('disconnect', function() { disconnected ( socket ) ;  } ) ;
+        socket.on( 'disconnect', function() { console.log ( "disconnected ~@!" ) ; disconnected ( socket ) ; } ) ;
 
         socket.on ( 'message' , function ( data ) { receivedMessage ( socket,  data ) ; } );
 
@@ -84,12 +84,12 @@ function joinRoom ( socket , room , username )
         var currSocket = io.sockets.clients(room)[i];
         var user = getProperty( currSocket , 'username' ) ;
         connectedArray.push ( user ) ;
-
     }
 
     socket.emit ( 'usersUpdate' , connectedArray ) ;
     socket.broadcast.to(room).emit ( 'usersUpdate' , connectedArray ) ;
 }
+
 
 function disconnected ( socket )
 {
