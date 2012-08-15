@@ -51,7 +51,9 @@ io.sockets.on ( 'connection' ,
 
         socket.on ( 'message' , function ( data ) { receivedMessage ( socket,  data ) ; } );
 
-        socket.on ( 'updateMap' , function ( id , username ) { updateMap ( id , username ) ; } );
+        socket.on ( 'updateMap' , function ( id , username ) { updateMap ( socket, id , username ) ; } );
+
+        socket.on ( 'answer' , function ( room , username , answer , time ) { sendAnswerToUsers ( socket , room , username , answer , time ) ; } ) ;
 
     } ) ;
 
@@ -65,6 +67,13 @@ function getProperty ( socket , propertyName )
                                     prop =  property ;
                                 }) ;
     return prop ;
+}
+
+function sendAnswerToUsers ( socket ,  room , username , answer , time )
+{
+    socket.broadcast.to(room).send ( ">> " + username + " chose: " + answer + " in:" + time ) ;
+    socket.send ( ">> " + username + " chose: " + answer + " in:" + time ) ;
+
 }
 
 function joinRoom ( socket , room , username )
@@ -115,10 +124,14 @@ function receivedMessage ( socket , data )
 function updateMap ( socket , id , username  )
 {
     var room ;
+    console.log ( "~~update map" ) ;
     room = getProperty( socket , 'room' ) ;
     console.log ( "UPDATING " + room + " zone " + id + " by user:" + username ) ;
     socket.broadcast.to(room).emit ( 'mapUpdate' , id , username ) ;
     socket.emit ( 'mapUpdate' , id , username ) ;
+
+    socket.broadcast.to(room).emit ( 'showQuestion' ) ;
+    socket.emit ( 'showQuestion' ) ;
 }
 
 
