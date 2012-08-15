@@ -2,6 +2,7 @@ var app = require('http').createServer(handler);
 var io = require('socket.io').listen(app) ;
 var fs = require('fs') ;
 var url = require ('url');
+var router = require ( './router.js' ) ;
 
 app.listen(process.env.PORT || 8001);
 
