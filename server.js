@@ -2,7 +2,6 @@ var app = require('http').createServer(handler);
 var io = require('socket.io').listen(app) ;
 var fs = require('fs') ;
 var url = require ('url');
-var router = require ( './router.js' ) ;
 
 app.listen(process.env.PORT || 8001);
 
@@ -56,6 +55,7 @@ io.sockets.on ( 'connection' ,
 
         socket.on ( 'answer' , function ( room , username , answer , time ) { sendAnswerToUsers ( socket , room , username , answer , time ) ; } ) ;
 
+        socket.on ( 'requestUsers' , function ( room ) { sendUsersForRoom ( socket, room ) ; } ) ;
     } ) ;
 
 
@@ -70,10 +70,34 @@ function getProperty ( socket , propertyName )
     return prop ;
 }
 
+function sendUsersForRoom ( socket , room )
+{
+    var conn = getClientsFromRoom( room ) ;
+    socket.emit ( 'usersForSpecificRoom' , conn , room ) ;
+}
+
 function sendAnswerToUsers ( socket ,  room , username , answer , time )
 {
     socket.broadcast.to(room).send ( ">> " + username + " chose: " + answer + " in:" + time ) ;
     socket.send ( ">> " + username + " chose: " + answer + " in:" + time ) ;
+
+}
+
+function getClientsFromRoom ( room )
+{
+    var connectedArray = [] ;
+    var i ;
+
+    console.log ( "roomId " + room ) ;
+
+    for ( i = 0 ; i < io.sockets.clients(room).length ; ++ i )
+    {
+        var currSocket = io.sockets.clients(room)[i];
+        var user = getProperty( currSocket , 'username' ) ;
+        connectedArray.push ( user ) ;
+    }
+    console.log ( "||||||||||||||||||||||||||" + connectedArray ) ;
+    return connectedArray ;
 
 }
 
@@ -86,15 +110,7 @@ function joinRoom ( socket , room , username )
     socket.join ( room ) ;
     socket.send ( ">>> joined " + room ) ;
 
-    var connectedArray = [] ;
-    var i ;
-
-    for ( i = 0 ; i < io.sockets.clients(room).length ; ++ i )
-    {
-        var currSocket = io.sockets.clients(room)[i];
-        var user = getProperty( currSocket , 'username' ) ;
-        connectedArray.push ( user ) ;
-    }
+    var connectedArray = getClientsFromRoom ( room ) ;
 
     socket.emit ( 'usersUpdate' , connectedArray ) ;
     socket.broadcast.to(room).emit ( 'usersUpdate' , connectedArray ) ;
