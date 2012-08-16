@@ -22,6 +22,10 @@ function handler (req, res)
         case '/raphael-min.js': file = 'prj/raphael-min.js' ; type = "text/javascript" ; break ;
         case '/project.css': file = 'prj/project.css'; type ="text/css" ;break ;
         case '/javaUtils.js': file = 'prj/javaUtils.js'; type = "text/javascript" ; break ;
+        case '/login.js': file = 'prj/login.js'; type = "text/javascript" ; break ;
+        case '/map.js': file = 'prj/map.js'; type = "text/javascript" ; break ;
+        case '/room.js': file = 'prj/room.js'; type = "text/javascript" ; break ;
+
     }
 
     console.log("Request for " + pathname + " received. ===> file:" + file + " type: " + type ) ;
@@ -106,6 +110,8 @@ function joinRoom ( socket , room , username )
 
     socket.set ( 'room' , room ) ;
     socket.set ( 'username' , username ) ;
+
+    console.log ( "username:" + username + "    room:" + room ) ;
 
     socket.join ( room ) ;
     socket.send ( ">>> joined " + room ) ;
