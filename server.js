@@ -50,9 +50,9 @@ function handler (req, res)
 io.sockets.on ( 'connection' ,
 	function (socket) {
 
-		socket.on ( 'noRoom' , function ( ) { socket.join ( 'noRoom' ) ; } ) ;
+		socket.on ( 'noRoom' , function ( username ) { newUserConnected ( socket , username ) ; } ) ;
 
-		socket.on ( 'joinRoom' , function (room , username ) { joinRoom ( socket, room , username ) ; } ) ;
+		socket.on ( 'joinRoom' , function ( room ) { joinRoom ( socket, room  ) ; } ) ;
 
 		socket.on( 'disconnect', function() { console.log ( "disconnected ~@!" ) ; disconnected ( socket ) ; } ) ;
 
@@ -69,6 +69,16 @@ io.sockets.on ( 'connection' ,
 		socket.on ( 'requestRoomNumber' , function ( ) { socket.emit ( 'roomNumber' , rooms) ; } ) ;
 	} ) ;
 
+function newUserConnected ( socket , username  )
+{
+	socket.join ( 'noRoom' ) ;
+	socket.set ( 'username' , username ) ;
+	//Get list of free users and send them
+	
+	var clients = getClientsFromRoom ( 'noRoom' ) ;
+	socket.emit ( 'getFreeUsers' ,  clients ) ;
+	socket.broadcast.to('noRoom').emit ( 'getFreeUsers' ,  clients ) ;
+}
 
 function sendNewRoomToUsers ( socket , room )
 {
@@ -123,7 +133,6 @@ function joinRoom ( socket , room , username )
 
 	socket.leave ( 'noRoom' ) ;
 	socket.set ( 'room' , room ) ;
-	socket.set ( 'username' , username ) ;
 
 	console.log ( "username:" + username + "    room:" + room ) ;
 
