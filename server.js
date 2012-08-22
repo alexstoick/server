@@ -27,6 +27,8 @@ function handler (req, res)
 		case '/login.js': file = 'prj/login.js'; type = "text/javascript" ; break ;
 		case '/map.js': file = 'prj/map.js'; type = "text/javascript" ; break ;
 		case '/room.js': file = 'prj/room.js'; type = "text/javascript" ; break ;
+		case '/ajax-loader.gif': file = 'prj/room.js'; type = "image/gif" ; break ;
+		case '/gamemodel.js': file = 'prj/gamemodel.js'; type ="text/javascript"; break ;
 	}
 
 	console.log("Request for " + pathname + " received. ===> file:" + file + " type: " + type ) ;
@@ -74,7 +76,7 @@ function newUserConnected ( socket , username  )
 	socket.join ( 'noRoom' ) ;
 	socket.set ( 'username' , username ) ;
 	//Get list of free users and send them
-	
+
 	var clients = getClientsFromRoom ( 'noRoom' ) ;
 	socket.emit ( 'getFreeUsers' ,  clients ) ;
 	socket.broadcast.to('noRoom').emit ( 'getFreeUsers' ,  clients ) ;
@@ -105,9 +107,9 @@ function sendUsersForRoom ( socket , room )
 
 function sendAnswerToUsers ( socket ,  room , username , answer , time )
 {
-	socket.broadcast.to(room).send ( ">> " + username + " chose: " + answer + " in:" + time ) ;
-	socket.send ( ">> " + username + " chose: " + answer + " in:" + time ) ;
-
+	socket.broadcast.to(room).emit ( 'answer' , username , answer , time ) ;
+	socket.emit ( 'answer' , username , answer , time ) ;
+	console.log ( "~~ received answer for room: " + room ) ;
 }
 
 function getClientsFromRoom ( room )
@@ -143,6 +145,19 @@ function joinRoom ( socket , room , username )
 
 	socket.emit ( 'usersUpdate' , connectedArray ) ;
 	socket.broadcast.to(room).emit ( 'usersUpdate' , connectedArray ) ;
+
+	if ( io.sockets.clients(room).length == 2 ) //avem toti userii necesari => incepe jocul
+	{
+		socket.broadcast.to(room).send ( "Preparing to start game" ) ;
+		socket.send ( "Preparing to start game" ) ;
+		setTimeout( startGameForRoom ( socket ,room ) ,1250);
+	}
+}
+
+function startGameForRoom ( socket,  roomId )
+{
+	socket.emit ( 'showQuestion' ) ;
+	socket.broadcast.to(roomId).emit ( 'showQuestion' ) ;
 }
 
 
