@@ -69,7 +69,15 @@ io.sockets.on ( 'connection' ,
 		socket.on( 'newRoom' , function ( room ) { sendNewRoomToUsers ( socket , room ) ; } ) ;
 
 		socket.on ( 'requestRoomNumber' , function ( ) { socket.emit ( 'roomNumber' , rooms) ; } ) ;
+		socket.on ( 'showQuestion' , function ( ) { showQuestion (socket ) ; } ) ;
 	} ) ;
+
+function showQuestion ( socket )
+{
+	var room = getProperty ( socket, 'room' ) ;
+	socket.emit ( 'showQuestion' ) ;
+	socket.broadcast.to(room).emit ( 'showQuestion' ) ;
+}
 
 function newUserConnected ( socket , username  )
 {
@@ -191,8 +199,8 @@ function updateMap ( socket , id , username  )
 	socket.broadcast.to(room).emit ( 'mapUpdate' , id , username ) ;
 	socket.emit ( 'mapUpdate' , id , username ) ;
 
-	socket.broadcast.to(room).emit ( 'showQuestion' ) ;
-	socket.emit ( 'showQuestion' ) ;
+//	socket.broadcast.to(room).emit ( 'showQuestion' ) ;
+//	socket.emit ( 'showQuestion' ) ;
 }
 
 
