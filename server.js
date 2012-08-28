@@ -2,53 +2,46 @@ var app = require('http').createServer(handler);
 var io = require('socket.io').listen(app) ;
 var fs = require('fs') ;
 var url = require ('url');
-
+var path = require("path");
 app.listen(process.env.PORT || 8001);
 
-var rooms = 0 ;
+function handler(request, response) {
 
-function handler (req, res)
-{
-	var pathname = url.parse(req.url).pathname;
+  var uri = url.parse(request.url).pathname
+    , filename = path.join(process.cwd(), uri);
+  console.log(filename);
 
-	var file = "" ;
-	var type="" ;
-	switch ( pathname )
-	{
-		case '/': file = 'prj/project.html' ; type = "text/html" ; break ;
-		case '/room2.html': file = 'room2.html'; type = "text/html" ; break ;
-		case '/index.html': file = 'index.html'; type = "text/html" ; break ;
-		case '/project' : file = 'prj/project.html'; type = "text/html" ; break ;
-		case '/uijs.js': file = 'prj/uijs.js' ; type = "text/javascript" ; break ;
-		case '/publicApi.js': file = 'prj/publicApi.js' ; type = "text/javascript" ; break ;
-		case '/raphael-min.js': file = 'prj/raphael-min.js' ; type = "text/javascript" ; break ;
-		case '/project.css': file = 'prj/project.css'; type ="text/css" ;break ;
-		case '/javaUtils.js': file = 'prj/javaUtils.js'; type = "text/javascript" ; break ;
-		case '/login.js': file = 'prj/login.js'; type = "text/javascript" ; break ;
-		case '/map.js': file = 'prj/map.js'; type = "text/javascript" ; break ;
-		case '/room.js': file = 'prj/room.js'; type = "text/javascript" ; break ;
-		case '/ajax-loader.gif': file = 'prj/room.js'; type = "image/gif" ; break ;
-		case '/gamemodel.js': file = 'prj/gamemodel.js'; type ="text/javascript"; break ;
-	}
+  path.exists(filename, function(exists) {
+    if(!exists) {
+      response.writeHead(404, {"Content-Type": "text/plain"});
+      response.write("404 Not Found\n");
+      response.end();
+      return;
+    }
 
-	console.log("Request for " + pathname + " received. ===> file:" + file + " type: " + type ) ;
+	if (fs.statSync(filename).isDirectory()) filename += '/index.html';
 
-	fs.readFile( file ,
-	function (err, data)
-	{
-		if (err)
-		{
-			res.writeHead(500);
-			return res.end('Error loading ' + file + "~~" );
-		}
+    fs.readFile(filename, "binary", function(err, file) {
+      if(err) {        
+        response.writeHead(500, {"Content-Type": "text/plain"});
+        response.write(err + "\n");
+        response.end();
+        return;
+      }
 
-		res.writeHead(200, {'Content-Type': type, "Content-Length": data.length});
-		res.end(data);
-	} );
-
+      response.writeHead(200);
+      response.write(file, "binary");
+      response.end();
+    });
+  });
 }
 
 
+
+
+
+
+var rooms = 0 ;
 io.sockets.on ( 'connection' ,
 	function (socket) {
 
@@ -69,7 +62,15 @@ io.sockets.on ( 'connection' ,
 		socket.on( 'newRoom' , function ( room ) { sendNewRoomToUsers ( socket , room ) ; } ) ;
 
 		socket.on ( 'requestRoomNumber' , function ( ) { socket.emit ( 'roomNumber' , rooms) ; } ) ;
+		socket.on ( 'showQuestion' , function ( ) { showQuestion (socket ) ; } ) ;
 	} ) ;
+
+function showQuestion ( socket )
+{
+	var room = getProperty ( socket, 'room' ) ;
+	socket.emit ( 'showQuestion' ) ;
+	socket.broadcast.to(room).emit ( 'showQuestion' ) ;
+}
 
 function newUserConnected ( socket , username  )
 {
@@ -191,8 +192,8 @@ function updateMap ( socket , id , username  )
 	socket.broadcast.to(room).emit ( 'mapUpdate' , id , username ) ;
 	socket.emit ( 'mapUpdate' , id , username ) ;
 
-	socket.broadcast.to(room).emit ( 'showQuestion' ) ;
-	socket.emit ( 'showQuestion' ) ;
+//	socket.broadcast.to(room).emit ( 'showQuestion' ) ;
+//	socket.emit ( 'showQuestion' ) ;
 }
 
 
