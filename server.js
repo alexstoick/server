@@ -100,7 +100,7 @@ function getProperty ( socket , propertyName )
 								}) ;
 	return prop ;
 }
-
+ 
 function sendUsersForRoom ( socket , room )
 {
 	var conn = getClientsFromRoom( room ) ;
