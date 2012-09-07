@@ -42,6 +42,7 @@ function handler(request, response) {
 
 
 var rooms = 0 ;
+var themes = [] ;
 io.sockets.on ( 'connection' ,
 	function (socket) {
 
@@ -59,7 +60,7 @@ io.sockets.on ( 'connection' ,
 
 		socket.on ( 'requestUsers' , function ( room ) { sendUsersForRoom ( socket, room ) ; } ) ;
 
-		socket.on( 'newRoom' , function ( room ) { sendNewRoomToUsers ( socket , room ) ; } ) ;
+		socket.on( 'newRoom' , function ( room , theme ) { themes[themes.length] = theme ; sendNewRoomToUsers ( socket , room ) ; } ) ;
 
 		socket.on ( 'requestRoomNumber' , function ( ) { socket.emit ( 'roomNumber' , rooms) ; } ) ;
 		socket.on ( 'showQuestion' , function ( ) { showQuestion (socket ) ; } ) ;
@@ -103,7 +104,8 @@ function getProperty ( socket , propertyName )
 function sendUsersForRoom ( socket , room )
 {
 	var conn = getClientsFromRoom( room ) ;
-	socket.emit ( 'usersForSpecificRoom' , conn , room ) ;
+	console.log ( "~~~~~~~~~~~~~~~~~~" + room + "		" +themes[room-1] ) ;
+	socket.emit ( 'usersForSpecificRoom' , conn , room , themes[room-1] ) ;
 }
 
 function sendAnswerToUsers ( socket ,  room , username , answer , time )
