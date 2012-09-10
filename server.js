@@ -66,7 +66,7 @@ io.sockets.on ( 'connection' ,
 
 		socket.on ( 'showQuestion' , function ( ) { showQuestion (socket ) ; } ) ;
 
-		socket.on( 'showInputQuestion' , function( ) { showInputQuestion(socket) ; } );
+		socket.on( 'reqDepartajare' , function( ) { showInputQuestion(socket) ; } );
 	} ) ;
 
 function showQuestion ( socket )
