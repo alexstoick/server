@@ -43,6 +43,7 @@ function handler(request, response) {
 
 var rooms = 0 ;
 var themes = [] ;
+var inputRequests = [] ;
 io.sockets.on ( 'connection' ,
 	function (socket) {
 
@@ -50,7 +51,7 @@ io.sockets.on ( 'connection' ,
 
 		socket.on ( 'joinRoom' , function ( room ) { joinRoom ( socket, room  ) ; } ) ;
 
-		socket.on( 'disconnect', function() { console.log ( "disconnected ~@!" ) ; disconnected ( socket ) ; } ) ;
+		socket.on( 'disconnect', function() { disconnected ( socket ) ; } ) ;
 
 		socket.on ( 'message' , function ( data ) { receivedMessage ( socket,  data ) ; } );
 
@@ -60,7 +61,7 @@ io.sockets.on ( 'connection' ,
 
 		socket.on ( 'requestUsers' , function ( room ) { sendUsersForRoom ( socket, room ) ; } ) ;
 
-		socket.on( 'newRoom' , function ( room , theme ) { themes[themes.length] = theme ; sendNewRoomToUsers ( socket , room ) ; } ) ;
+		socket.on( 'newRoom' , function ( room , theme ) { newRoom ( socket, room , theme ) ; } ) ;
 
 		socket.on ( 'requestRoomNumber' , function ( ) { socket.emit ( 'roomNumber' , rooms) ; } ) ;
 
@@ -68,6 +69,13 @@ io.sockets.on ( 'connection' ,
 
 		socket.on( 'reqDepartajare' , function( ) { showInputQuestion(socket) ; } );
 	} ) ;
+
+function newRoom ( socket , room , theme )
+{
+	inputRequests[inputRequests.length ] =  0 ;
+	themes[themes.length] = theme ; 
+	sendNewRoomToUsers ( socket , room ) ;
+}
 
 function showQuestion ( socket )
 {
@@ -78,8 +86,14 @@ function showQuestion ( socket )
 function showInputQuestion(socket)
 {
 	var room = getProperty (socket,'room');
-	socket.emit( 'showInputQuestion' );
-	socket.broadcast.to(room).emit ('showInputQuestion');1
+	console.log ( "~~~~~~~~~~~~~~~~~~~~~~~~~~~~ " + inputRequests[room-1] + "			" + room ) ;
+	inputRequests[room - 1] ++ ;
+	if ( inputRequests[room - 1] == 2 )
+	{
+		inputRequests[room - 1] = 0 ;
+		socket.emit( 'showInputQuestion' );
+		socket.broadcast.to(room).emit ('showInputQuestion');
+	}
 }
 function newUserConnected ( socket , username  )
 {
@@ -103,7 +117,6 @@ function getProperty ( socket , propertyName )
 	var prop ;
 	socket.get ( propertyName , function ( err , property)
 								{
-									console.log ( propertyName + " :: " + property ) ;
 									prop =  property ;
 								}) ;
 	return prop ;
@@ -112,7 +125,6 @@ function getProperty ( socket , propertyName )
 function sendUsersForRoom ( socket , room )
 {
 	var conn = getClientsFromRoom( room ) ;
-	console.log ( "~~~~~~~~~~~~~~~~~~" + room + "		" +themes[room-1] ) ;
 	socket.emit ( 'usersForSpecificRoom' , conn , room , themes[room-1] ) ;
 }
 
@@ -120,7 +132,6 @@ function sendAnswerToUsers ( socket ,  room , username , answer , time )
 {
 	socket.broadcast.to(room).emit ( 'answer' , username , answer , time ) ;
 	socket.emit ( 'answer' , username , answer , time ) ;
-	console.log ( "~~ received answer for room: " + room ) ;
 }
 
 function getClientsFromRoom ( room )
@@ -128,17 +139,13 @@ function getClientsFromRoom ( room )
 	var connectedArray = [] ;
 	var i ;
 
-	console.log ( "roomId " + room ) ;
-
 	for ( i = 0 ; i < io.sockets.clients(room).length ; ++ i )
 	{
 		var currSocket = io.sockets.clients(room)[i];
 		var user = getProperty( currSocket , 'username' ) ;
 		connectedArray.push ( user ) ;
 	}
-	console.log ( "||||||||||||||||||||||||||" + connectedArray ) ;
 	return connectedArray ;
-
 }
 
 function joinRoom ( socket , room , username )
@@ -147,7 +154,6 @@ function joinRoom ( socket , room , username )
 	socket.leave ( 'noRoom' ) ;
 	socket.set ( 'room' , room ) ;
 
-	console.log ( "username:" + username + "    room:" + room ) ;
 
 	socket.join ( room ) ;
 	socket.send ( ">>> joined " + room ) ;
@@ -177,18 +183,14 @@ function disconnected ( socket )
 	var user = getProperty( socket , 'username' ) ;
 	var room = getProperty( socket , 'room' ) ;
 
-	console.log ( "Disconnected " + user + " from room:" + room ) ;
 	socket.broadcast.to(room).emit ( 'userDisconnected' , user ) ;
 }
 
 function receivedMessage ( socket , data )
 {
-	console.log("Client data: " + data);
-
 	// lookup room and broadcast to that room
 	var room ;
 	room = getProperty( socket , 'room' ) ;
-	console.log ( "Client room:" + room ) ;
 	socket.broadcast.to(room).emit( 'message' , data );
 }
 
@@ -196,14 +198,9 @@ function receivedMessage ( socket , data )
 function updateMap ( socket , id , username  )
 {
 	var room ;
-	console.log ( "~~update map" ) ;
 	room = getProperty( socket , 'room' ) ;
-	console.log ( "UPDATING " + room + " zone " + id + " by user:" + username ) ;
 	socket.broadcast.to(room).emit ( 'mapUpdate' , id , username ) ;
 	socket.emit ( 'mapUpdate' , id , username ) ;
-
-//	socket.broadcast.to(room).emit ( 'showQuestion' ) ;
-//	socket.emit ( 'showQuestion' ) ;
 }
 
 
