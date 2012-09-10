@@ -63,7 +63,10 @@ io.sockets.on ( 'connection' ,
 		socket.on( 'newRoom' , function ( room , theme ) { themes[themes.length] = theme ; sendNewRoomToUsers ( socket , room ) ; } ) ;
 
 		socket.on ( 'requestRoomNumber' , function ( ) { socket.emit ( 'roomNumber' , rooms) ; } ) ;
+
 		socket.on ( 'showQuestion' , function ( ) { showQuestion (socket ) ; } ) ;
+
+		socket.on( 'showInputQuestion' , function( ) { showInputQuestion(socket) ; } );
 	} ) ;
 
 function showQuestion ( socket )
@@ -72,7 +75,12 @@ function showQuestion ( socket )
 	socket.emit ( 'showQuestion' ) ;
 	socket.broadcast.to(room).emit ( 'showQuestion' ) ;
 }
-
+function showInputQuestion(socket)
+{
+	var room = getProperty (socket,'room');
+	socket.emit( 'showInputQuestion' );
+	socket.broadcast.to(room).emit ('showInputQuestion');1
+}
 function newUserConnected ( socket , username  )
 {
 	socket.join ( 'noRoom' ) ;
