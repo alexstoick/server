@@ -47,7 +47,7 @@ var inputRequests = [] ;
 io.sockets.on ( 'connection' ,
 	function (socket) {
 
-		socket.on ( 'noRoom' , function ( username ) { newUserConnected ( socket , username ) ; } ) ;
+		socket.on ( 'noRoom' , function ( username , profilePIC ) { newUserConnected ( socket , username , profilePIC ) ; } ) ;
 
 		socket.on ( 'joinRoom' , function ( room ) { joinRoom ( socket, room  ) ; } ) ;
 
@@ -86,7 +86,6 @@ function showQuestion ( socket )
 function showInputQuestion(socket)
 {
 	var room = getProperty (socket,'room');
-	console.log ( "~~~~~~~~~~~~~~~~~~~~~~~~~~~~ " + inputRequests[room-1] + "			" + room ) ;
 	inputRequests[room - 1] ++ ;
 	if ( inputRequests[room - 1] == 2 )
 	{
@@ -95,10 +94,12 @@ function showInputQuestion(socket)
 		socket.broadcast.to(room).emit ('showInputQuestion');
 	}
 }
-function newUserConnected ( socket , username  )
+function newUserConnected ( socket , username , profilePIC )
 {
 	socket.join ( 'noRoom' ) ;
 	socket.set ( 'username' , username ) ;
+	socket.set ( 'profilePIC' , profilePIC ) ;
+	console.log ( profilePIC ) ;
 	//Get list of free users and send them
 
 	var clients = getClientsFromRoom ( 'noRoom' ) ;
@@ -136,15 +137,18 @@ function sendAnswerToUsers ( socket ,  room , username , answer , time )
 
 function getClientsFromRoom ( room )
 {
-	var connectedArray = [] ;
+	var connectedArray = [ [] , [] , [] ] ;
 	var i ;
 
 	for ( i = 0 ; i < io.sockets.clients(room).length ; ++ i )
 	{
 		var currSocket = io.sockets.clients(room)[i];
 		var user = getProperty( currSocket , 'username' ) ;
-		connectedArray.push ( user ) ;
+		var userPic = getProperty ( currSocket , 'profilePIC' ) ;
+		connectedArray[i].push ( user ) ;
+		connectedArray[i].push ( userPic ) ;
 	}
+
 	return connectedArray ;
 }
 
