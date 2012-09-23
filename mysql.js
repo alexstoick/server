@@ -38,11 +38,11 @@ function handler(request, response) {
 
 var _mysql = require('mysql');
 
-var HOST = 'localhost';
+var HOST = 'sql2.freesqldatabase.com';
 var PORT = 3306;
-var MYSQL_USER = 'root';
-var MYSQL_PASS = '';
-var DATABASE = 'warehous_lucru';
+var MYSQL_USER = 'sql2243';
+var MYSQL_PASS = 'cC4%kJ4!';
+var DATABASE = 'sql2243';
 
 
 var connection = _mysql.createConnection({
@@ -52,11 +52,7 @@ var connection = _mysql.createConnection({
   database : DATABASE ,
 });
 
-
-connection.connect();
-
-connection.query('SELECT * FROM moves', function(err, rows, fields) {
-  if (err) throw err;
-
-  console.log( rows.length);
+connection.query( "SELECT * FROM reserved", function(err,results) {
+  if ( err ) throw err ;
+  console.log ( results[0]['id'] ) ;
 });
