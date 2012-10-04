@@ -28,8 +28,18 @@ function handler(request, response) {
         response.end();
         return;
       }
+	  var contentTypeLetter = filename[filename.length-2] ;
+	  var contentType = '' ;
 
-      response.writeHead(200);
+	  switch ( contentTypeLetter )
+	  {
+	  	case 'j': contentType = "text/javascript" ; break ;
+	  	case 's': contentType = "text/css"; break ;
+	  	case 'i': contentType = "image/gif"; break ;
+	  	case 'm': contentType = "text/html" ; break ;
+	  }
+
+      response.writeHead(200 , { "Content-Type" : contentType } );
       response.write(file, "binary");
       response.end();
     });
