@@ -77,7 +77,9 @@ io.sockets.on ( 'connection' ,
 
 		socket.on ( 'showQuestion' , function ( ) { showQuestion (socket ) ; } ) ;
 
-		socket.on( 'reqDepartajare' , function( ) { showInputQuestion(socket) ; } );
+		socket.on ( 'reqDepartajare' , function( ) { showInputQuestion(socket) ; } );
+
+		socket.on ( 'showWarQuestion' , function ( attacker , holder , zoneID ) { showWarQuestion ( attacker, holder , zoneID , socket ) ; } ) ;
 	} ) ;
 
 function newRoom ( socket , room , theme )
@@ -215,6 +217,22 @@ function updateMap ( socket , id , username  )
 	room = getProperty( socket , 'room' ) ;
 	socket.broadcast.to(room).emit ( 'mapUpdate' , id , username ) ;
 	socket.emit ( 'mapUpdate' , id , username ) ;
+}
+
+function showWarQuestion ( attacker , holder , zoneID , socket )
+{
+
+	var room = getProperty ( socket , 'room' ) ;
+
+	for ( i = 0 ; i < io.sockets.clients(room).length ; ++ i )
+	{
+		var currSocket = io.sockets.clients(room)[i];
+		var user = getProperty( currSocket , 'username' ) ;
+
+		if ( user == attacker || user == holder )
+			currSocket.emit ( 'showWarQuestion' ) ;
+	}
+
 }
 
 
