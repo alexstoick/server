@@ -80,6 +80,8 @@ io.sockets.on ( 'connection' ,
 		socket.on ( 'reqDepartajare' , function( ) { showInputQuestion(socket) ; } );
 
 		socket.on ( 'showWarQuestion' , function ( attacker , holder , zoneID ) { showWarQuestion ( attacker, holder , zoneID , socket ) ; } ) ;
+
+		socket.on ( 'updateWarMap' , function ( id , fillColor , new_holder ) { updateWarMap ( id , fillColor , new_holder , socket ) ; } ) ;
 	} ) ;
 
 function newRoom ( socket , room , theme )
@@ -235,21 +237,8 @@ function showWarQuestion ( attacker , holder , zoneID , socket )
 
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+function updateWarMap ( id , fillColor , new_holder , socket )
+{
+	var room = getProperty ( socket, 'room' ) ;
+	socket.broadcast.to(room).emit ( 'updateWarMap' , id , fillColor , new_holder ) ;
+}
