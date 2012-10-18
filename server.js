@@ -45,6 +45,20 @@ correctAnswer[1]=[4,1,4,2,4,3,4,3,4,0,2,3,2,1,2,2,2,2,3,3,1,3,1,3,1,4,3,1,4,1,3,
 correctAnswer[2]=[3,1,4,3,2,3,2,3,3,0,1,1,2,2,4,1,4,3,4,1,3,3,3,1,4,3,3,1,1,4,3,1,4,3,4,2,1,3,3,1,3,1,4,1,1,2,2,1,3,3,2,2,1,4,3,4,2,2,2,3,4,2,2,1,3,4,4,2,4,1,4,4,1,2,4,2,3,3,4,2,1,4,2,2,2,3,1,4,2,2,2,1,2,1,4,1,2,1,4,1];
 correctAnswer[3]=[4,2,3,2,4,1,4,3,4,0,4,1,4,3,4,2,4,4,3,4,4,1,4,4,3,4,3,3,1,2,2,3,4,3,1,4,1,4,3,4,4,4,3,3,2,4,3,3,3,3,1,3,2,3,3,3,1,3,2,4,2,2,3,3,2,3,4,1,3,3,4,4,3,3,3,4,4,3,4,2,4,2,4,3,3,3,2,3,3,1,2,2,3,2,3,4,2,2,2,1];
 
+
+//WAR 
+
+var correctWarAnswer = new Array(10);
+var questionWar=new Array(10);
+var questionsWarUsed = new Array(10);
+for (var i = 0; i < 100; i++) 
+    questionsWarUsed[i] = new Array(110);
+for(var i=0;i<100;i++)
+	for(var j=0;j<101;j++)
+			questionsWarUsed[i][j]=0;
+questionWar[1]=['How many chromosomes does the human DNA have?','How many chromosomes does the human DNA have?','ow many chambers does the human heart have?','ow many chambers does the human heart have?','he typical resting heart rate in adults is 60–….beats per minute.','he typical resting heart rate in adults is 60–….beats per minute.','yclist Miguel Indura has the lowest resting heart beat on record of … bpm, as tested at the University of Navarra, Pamplona, Spain, in 1995.','yclist Miguel Indura has the lowest resting heart beat on record of … bpm, as tested at the University of Navarra, Pamplona, Spain, in 1995.','ummingbirds in flight have a heartbeat of over …. beats per minute.','mmingbirds in flight have a heartbeat of over …. beats per minute.','e average adult has a blood volume of roughly …… liters.','e average adult has a blood volume of roughly …… liters.','e human spinal cord is around ….. cm in men, and 2 cm shorter in women.','e human spinal cord is around ….. cm in men, and 2 cm shorter in women.','e largest sea mammal is the blue whale, with a maximum weight of … tonnes.','e largest sea mammal is the blue whale, with a maximum weight of … tonnes.','e largest land mammal is the African bush elephant, with a maximum weight of … tonnes.','e largest land mammal is the African bush elephant, with a maximum weight of … tonnes.','e first mammals appeared during the Jurassic Period, about …. million years ago.','e first mammals appeared during the Jurassic Period, about …. million years ago.','ere are about …….species of mammals alive today.','ere are about …….species of mammals alive today.',' all mammal groups, the most diverse are the rodents which include over ……. species.',' all mammal groups, the most diverse are the rodents which include over ……. species.','e mammal group with the fewest number of species is the aardvark with … species.','e mammal group with the fewest number of species is the aardvark with … species.','e smallest mammal is the bumblebee bat, with a weight of only … grams.','e smallest mammal is the bumblebee bat, with a weight of only … grams.','e earliest known fishes were the ostracoderms, that appeared in the Cambrian Period, about ….. million years ago.','e earliest known fishes were the ostracoderms, that appeared in the Cambrian Period, about ….. million years ago.','e first amphibians evolved from lobe-finned fishes approximately …… million years ago during the Devonian Period.','e first amphibians evolved from lobe-finned fishes approximately …… million years ago during the Devonian Period.','ere are around …… species of known amphibians alive today.','ere are around …… species of known amphibians alive today.','e ray-finned fishes, which include trout and salmon, are the largest group of fish, with around ….. species.','e ray-finned fishes, which include trout and salmon, are the largest group of fish, with around ….. species.',' adult human has …. teeth.',' adult human has …. teeth.','e African elephant has the longest and largest teeth, with tusks that weigh over … kilos each.','e African elephant has the longest and largest teeth, with tusks that weigh over … kilos each.','rsiers have the largest eyes of all land mammals, with each eyeball measuring approximately … mm in diameter.','rsiers have the largest eyes of all land mammals, with each eyeball measuring approximately … mm in diameter.','le ostriches are the largest birds, weighing around …. kilos.','le ostriches are the largest birds, weighing around …. kilos.','triches have the largest eyes of any terrestrial animal, with a diameter of …mm.','triches have the largest eyes of any terrestrial animal, with a diameter of …mm.','e world’s fastest mammal is the cheetah, with a speed of ….  kmh.','e world’s fastest mammal is the cheetah, with a speed of ….  kmh.','e domestic cat has …. toes.','e domestic cat has …. toes.'];
+correctWarAnswer[1]=[46,2,4,3,100,4,28,5,1200,6,5,7,45,8,160,9,7,10,200,11,5400,12,1700,13,1,14,2,15,510,16,370,17,6000,18,24000,19,32,20,90,21,16,22,150,23,50,24,114,25,18,26];
+
 var app = require('http').createServer(handler);
 var io = require('socket.io').listen(app) ;
 var fs = require('fs') ;
@@ -152,12 +166,18 @@ function showQuestion ( socket )
 function showInputQuestion(socket)
 {
 	var room = getProperty (socket,'room');
+	var questionToBeShown=Math.floor(Math.random() * 50)+1;
+	while(questionsWarUsed[room][questionToBeShown]!=0)
+	{
+		questionToBeShown=Math.floor(Math.random() * 100)+1;
+	}
 	inputRequests[room - 1] ++ ;
+	var themeUsed=themes[room-1];
 	if ( inputRequests[room - 1] == 2 )
 	{
 		inputRequests[room - 1] = 0 ;
-		socket.emit( 'showInputQuestion');
-		socket.broadcast.to(room).emit ('showInputQuestion');
+		socket.emit( 'showInputQuestion',questionWar[themeUsed][questionToBeShown],correctAnswer[themeUsed][questionToBeShown]);
+		socket.broadcast.to(room).emit ('showInputQuestion',questionWar[themeUsed][questionToBeShown],correctAnswer[themeUsed][questionToBeShown]);
 	}
 }
 function newUserConnected ( socket , username , profilePIC )
