@@ -331,7 +331,7 @@ function showWarQuestion ( attacker , holder , zoneID , socket )
 		if ( user == attacker || user == holder )
 		{
 
-			currSocket.emit ( 'showQuestion',question[themeUsed][questionToBeShown],answerA[themeUsed][questionToBeShown],answerB[themeUsed][questionToBeShown],answerC[themeUsed][questionToBeShown],answerD[themeUsed][questionToBeShown] ,correctAnswer[themeUsed][questionToBeShown]) ;
+			currSocket.emit ( 'showWarQuestion',question[themeUsed][questionToBeShown],answerA[themeUsed][questionToBeShown],answerB[themeUsed][questionToBeShown],answerC[themeUsed][questionToBeShown],answerD[themeUsed][questionToBeShown] ,correctAnswer[themeUsed][questionToBeShown]) ;
 			//	currSocket.emit ( 'showWarQuestion' ) ;
 		}
 	}
