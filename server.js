@@ -168,11 +168,11 @@ function newRoom ( socket , room , theme )
 
 function showQuestion ( socket )
 {
-	var questionToBeShown=Math.floor(Math.random() * 100)+1;
+	var questionToBeShown=Math.floor(Math.random() * 95)+1;
 	var room = getProperty ( socket, 'room' ) ;
 	while(questionsUsed[room][questionToBeShown]!=0)
 	{
-		questionToBeShown=Math.floor(Math.random() * 100)+1;
+		questionToBeShown=Math.floor(Math.random() * 95)+1;
 	}
 	console.log(question[1]);
 	questionsUsed[room][questionToBeShown]=1;
@@ -183,10 +183,10 @@ function showQuestion ( socket )
 function showInputQuestion(socket)
 {
 	var room = getProperty (socket,'room');
-	var questionToBeShown=Math.floor(Math.random() * 50)+1;
+	var questionToBeShown=Math.floor(Math.random() * 45)+1;
 	while(questionsWarUsed[room][questionToBeShown]!=0)
 	{
-		questionToBeShown=Math.floor(Math.random() * 50)+1;
+		questionToBeShown=Math.floor(Math.random() * 45)+1;
 	}
 	inputRequests[room - 1] ++ ;
 	var themeUsed=themes[room-1];
@@ -312,6 +312,16 @@ function showWarQuestion ( attacker , holder , zoneID , socket )
 {
 
 	var room = getProperty ( socket , 'room' ) ;
+	var questionToBeShown=Math.floor(Math.random() * 95)+1;
+
+	while(questionsUsed[room][questionToBeShown]!=0)
+	{
+		questionToBeShown=Math.floor(Math.random() * 95)+1;
+	}
+	
+	questionsUsed[room][questionToBeShown]=1;
+	var themeUsed=themes[room-1];
+
 
 	for ( i = 0 ; i < io.sockets.clients(room).length ; ++ i )
 	{
@@ -319,7 +329,11 @@ function showWarQuestion ( attacker , holder , zoneID , socket )
 		var user = getProperty( currSocket , 'username' ) ;
 
 		if ( user == attacker || user == holder )
-			currSocket.emit ( 'showWarQuestion' ) ;
+		{
+
+			currSocket.emit ( 'showQuestion',question[themeUsed][questionToBeShown],answerA[themeUsed][questionToBeShown],answerB[themeUsed][questionToBeShown],answerC[themeUsed][questionToBeShown],answerD[themeUsed][questionToBeShown] ,correctAnswer[themeUsed][questionToBeShown]) ;
+			//	currSocket.emit ( 'showWarQuestion' ) ;
+		}
 	}
 
 }
