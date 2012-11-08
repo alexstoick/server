@@ -83,6 +83,15 @@ var url = require ('url');
 var path = require("path");
 app.listen(process.env.PORT || 8001);
 
+var httpProxy = require('http-proxy');
+
+//
+// Basic Http Proxy Server
+//
+
+httpProxy.createServer(9000, 'localhost').listen(80);
+
+
 function handler(request, response) {
 
   var uri = url.parse(request.url).pathname
